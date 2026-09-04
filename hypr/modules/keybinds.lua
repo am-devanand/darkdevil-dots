@@ -233,7 +233,7 @@ hl.bind("SUPER + RETURN", hl.dsp.exec_cmd("foot"))
     -- Sleep
     hl.bind("SUPER + SHIFT + L", hl.dsp.exec_cmd("systemctl suspend-then-hibernate"), { locked = true })
 
-    hl.bind("SUPER + SHIFT + H", hl.dsp.exec_cmd("thunar ~/Pictures/Wallpapers/"))
+    hl.bind("SUPER + SHIFT + H", hl.dsp.exec_cmd("qs -c caelestia ipc call drawers toggle launcher"))
 
     -- Clipboard and emoji picker
     hl.bind("SUPER + V", hl.dsp.exec_cmd("pkill fuzzel || caelestia clipboard"))
