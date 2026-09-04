@@ -101,8 +101,7 @@
                 "id": "power"
             }
         ],
-        "excludedScreens": [
-        ],
+        "excludedScreens": [],
         "persistent": true,
         "popouts": {
             "activeWindow": true,
@@ -148,27 +147,24 @@
         "tray": {
             "background": false,
             "compact": false,
-            "hiddenIcons": [
-            ],
-            "iconSubs": [
-            ],
+            "hiddenIcons": [],
+            "iconSubs": [],
             "recolour": true
         },
         "workspaces": {
             "activeIndicator": true,
-            "activeLabel": "󰮯",
+            "activeLabel": "\udb82\udfaf",
             "activeTrail": false,
             "capitalisation": "preserve",
-            "label": "  ",
+            "label": "\uf444  ",
             "maxWindowIcons": 0,
             "occupiedBg": true,
-            "occupiedLabel": "󰮯",
+            "occupiedLabel": "\udb82\udfaf",
             "perMonitorWorkspaces": true,
             "showWindows": false,
             "showWindowsOnSpecialWorkspaces": false,
             "shown": 5,
-            "specialWorkspaceIcons": [
-            ],
+            "specialWorkspaceIcons": [],
             "windowIcons": [
                 {
                     "icon": "sports_esports",
@@ -433,10 +429,8 @@
         "dragThreshold": 50,
         "enableDangerousActions": false,
         "enabled": true,
-        "favouriteApps": [
-        ],
-        "hiddenApps": [
-        ],
+        "favouriteApps": [],
+        "hiddenApps": [],
         "maxShown": 9,
         "maxWallpapers": 9,
         "showOnHover": false,
@@ -459,7 +453,7 @@
         "maxHowdyTries": 3,
         "recolourLogo": false,
         "triggerHowdyOnWake": true,
-        "useWallpaper": false
+        "useWallpaper": true
     },
     "nexus": {
         "maxNetworksShown": 5,
@@ -602,8 +596,7 @@
         },
         "vpn": {
             "enabled": false,
-            "provider": [
-            ],
+            "provider": [],
             "selectedProvider": ""
         }
     }
