@@ -1,0 +1,10 @@
+{
+  "theme": {
+    "enableGtk": true,
+    "enableQt": true,
+    "enableHypr": true,
+    "enableFuzzel": true,
+    "enableBtop": true,
+    "postHook": "/home/darkdevil/.config/caelestia/scripts/sync-gtk.sh"
+  }
+}

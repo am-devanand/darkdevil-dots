@@ -1,0 +1,9 @@
+*.log
+.cache/
+*.tar.gz
+caelestia/monitors/
+hypr/hypr-user.conf
+.DS_Store
+secrets*
+*token*
+*password*
