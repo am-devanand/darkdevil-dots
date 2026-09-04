@@ -14,44 +14,62 @@ Item {
     property string source: Wallpapers.current
     property CachingImage current
     property bool completed
+    property bool isWiping: false
+    property real wipeProgress: 0.0
+    property Item wipeOldItem
 
     onSourceChanged: {
-        if (!source)
+        if (!source) {
             current = null;
-        else {
-            const old = current;
-            current = imgComp.createObject(root, {
-                path: source
-            });
-            if (old) {
-                old.z = 1;
-                fadeOut.target = old;
-                fadeOut.start();
+            return;
+        }
+
+        const old = current;
+        current = imgComp.createObject(root, { path: source });
+
+        if (old) {
+            if (isWiping && wipeOldItem) {
+                wipeOldItem.layer.enabled = false;
+                wipeOldItem.destroy();
             }
+
+            old.z = 2;
+            isWiping = true;
+            wipeProgress = 0.0;
+            wipeOldItem = old;
+            wipeAnim.start();
         }
     }
 
     Component.onCompleted: {
         if (source)
             Qt.callLater(() => {
-                current = imgComp.createObject(root, {
-                    path: source
-                });
+                current = imgComp.createObject(root, { path: source });
                 completed = true;
             });
     }
 
-    NumberAnimation {
-        id: fadeOut
+    SequentialAnimation {
+        id: wipeAnim
 
-        property: "opacity"
-        from: 1
-        to: 0
-        duration: 800
-        easing.type: Easing.InOutQuad
-        onFinished: {
-            if (target)
-                target.destroy();
+        NumberAnimation {
+            target: root
+            property: "wipeProgress"
+            from: 0.0
+            to: 1.0
+            duration: 2500
+            easing.type: Easing.Linear
+        }
+
+        ScriptAction {
+            script: {
+                if (root.wipeOldItem) {
+                    root.wipeOldItem.layer.enabled = false;
+                    root.wipeOldItem.destroy();
+                    root.wipeOldItem = null;
+                }
+                root.isWiping = false;
+            }
         }
     }
 
@@ -129,22 +147,24 @@ Item {
 
             anchors.fill: parent
 
-            opacity: 0
+            layer.enabled: root.isWiping && root.wipeOldItem === img
+            layer.effect: ShaderEffect {
+                property real progress: root.wipeProgress
 
-            onStatusChanged: {
-                if (status === Image.Ready)
-                    fadeIn.start();
-            }
+                fragmentShader: "
+                    varying highp vec2 qt_TexCoord0;
+                    uniform sampler2D source;
+                    uniform lowp float qt_Opacity;
+                    uniform lowp float progress;
 
-            NumberAnimation {
-                id: fadeIn
-
-                target: img
-                property: "opacity"
-                from: 0
-                to: 1
-                duration: 800
-                easing.type: Easing.InOutQuad
+                    void main() {
+                        highp vec2 uv = qt_TexCoord0;
+                        lowp vec4 color = texture2D(source, uv);
+                        highp float diag = ((1.0 - uv.x) + uv.y) / 1.414;
+                        lowp float mask = smoothstep(progress - 0.08, progress + 0.08, diag);
+                        gl_FragColor = color * qt_Opacity * mask;
+                    }
+                "
             }
         }
     }
