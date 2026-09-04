@@ -40,7 +40,6 @@ hl.define_submap("global", function()
     -- Shell keybinds: launcher (bindin)
     local launcherOpts = { non_consuming = true, ignore_mods = true }
     hl.bind("SUPER + SUPER_L", hl.dsp.global("caelestia:launcher"), launcherOpts)
-    hl.bind("SUPER + TAB", hl.dsp.global("caelestia:launcher"), launcherOpts)
     -- legacy "Super, catchall" + bindin: ignore_mods bypasses modmask, so plain catchall is exact
     hl.bind("catchall", hl.dsp.global("caelestia:launcherInterrupt"), launcherOpts)
     for i = 272, 277 do
@@ -49,8 +48,8 @@ hl.define_submap("global", function()
     hl.bind("SUPER + mouse_up", hl.dsp.global("caelestia:launcherInterrupt"), launcherOpts)
     hl.bind("SUPER + mouse_down", hl.dsp.global("caelestia:launcherInterrupt"), launcherOpts)
 
-    -- Launcher (direct IPC toggle: bypasses the hold-to-release shortcut, which is
-    -- cancelled by the catchall launcherInterrupt on every keypress)
+    -- Launcher on SUPER+TAB: plain press-toggle (not the hold-to-release global
+    -- above, which would fire twice: once via IPC on press, again on release)
     hl.bind("SUPER + TAB", hl.dsp.exec_cmd("qs -c caelestia ipc call drawers toggle launcher"))
 
     -- Apps
