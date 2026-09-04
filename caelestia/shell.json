@@ -28,7 +28,7 @@
         "desktopClock": {
             "background": {
                 "blur": true,
-                "enabled": true,
+                "enabled": false,
                 "opacity": 0.55
             },
             "enabled": true,
