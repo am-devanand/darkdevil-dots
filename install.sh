@@ -62,6 +62,23 @@ done
 mkdir -p ~/Pictures/wallpapers
 [ -d "$DOTDIR/wallpapers" ] && cp -an "$DOTDIR/wallpapers/." ~/Pictures/wallpapers/ || true
 
+# QML overrides (notification cards, dashboard, etc.)
+QS_DIR="$HOME/.config/quickshell/caelestia/modules"
+QS_BACKUP="$HOME/.config/quickshell/pre-darkdevil-$(date +%Y%m%d)"
+if [ -d "$DOTDIR/quickshell-overrides" ]; then
+  msg "Applying QML overrides"
+  mkdir -p "$QS_BACKUP"
+  for module in notifications bar drawers dashboard; do
+    [ -d "$QS_DIR/$module" ] && cp -a "$QS_DIR/$module" "$QS_BACKUP/" 2>/dev/null || true
+  done
+  for module in notifications bar drawers dashboard; do
+    if [ -d "$DOTDIR/quickshell-overrides/$module" ]; then
+      mkdir -p "$QS_DIR/$module"
+      cp -a "$DOTDIR/quickshell-overrides/$module/." "$QS_DIR/$module/"
+    fi
+  done
+fi
+
 msg "Done. Backup at $BACKUP_DIR"
-msg "Reload: hyprctl reload ; restart shell: caelestia shell -d  (or qs -c caelestia)"
+msg "Restart shell: caelestia shell -k && sleep 1 && caelestia shell -d"
 msg "If Hyprland fails: restore from $BACKUP_DIR"
