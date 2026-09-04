@@ -481,7 +481,7 @@
         "enableBrightness": true,
         "enableMicrophone": false,
         "enabled": true,
-        "hideDelay": 2000
+        "hideDelay": 3000
     },
     "paths": {
         "lockNoNotifsPic": "root:/assets/dino.png",
