@@ -438,9 +438,9 @@
         "useFuzzy": {
             "actions": true,
             "apps": true,
-            "schemes": false,
-            "variants": false,
-            "wallpapers": false
+            "schemes": true,
+            "variants": true,
+            "wallpapers": true
         },
         "vimKeybinds": false
     },
