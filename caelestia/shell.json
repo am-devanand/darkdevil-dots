@@ -474,8 +474,8 @@
         "expire": true,
         "fullscreen": "on",
         "fullscreenExpireTimeout": 2000,
-        "groupPreviewNum": 3,
-        "openExpanded": false
+        "groupPreviewNum": 5,
+        "openExpanded": true
     },
     "osd": {
         "enableBrightness": true,
