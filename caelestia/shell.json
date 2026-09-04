@@ -114,7 +114,7 @@
             "volume": true,
             "workspaces": true
         },
-        "showOnHover": true,
+        "showOnHover": false,
         "statusIcons": [
             {
                 "enabled": true,
