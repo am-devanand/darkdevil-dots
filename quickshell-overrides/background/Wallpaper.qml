@@ -14,63 +14,24 @@ Item {
     property string source: Wallpapers.current
     property CachingImage current
     property bool completed
-    property bool isWiping: false
-    property real wipeProgress: 0.0
-    property Item wipeOldItem
 
     onSourceChanged: {
-        if (!source) {
+        if (!source)
             current = null;
-            return;
-        }
-
-        const old = current;
-        current = imgComp.createObject(root, { path: source });
-
-        if (old) {
-            if (isWiping && wipeOldItem) {
-                wipeOldItem.layer.enabled = false;
-                wipeOldItem.destroy();
-            }
-
-            old.z = 2;
-            isWiping = true;
-            wipeProgress = 0.0;
-            wipeOldItem = old;
-            wipeAnim.start();
-        }
+        else
+            current = imgComp.createObject(this, {
+                path: source
+            });
     }
 
     Component.onCompleted: {
         if (source)
             Qt.callLater(() => {
-                current = imgComp.createObject(root, { path: source });
+                current = imgComp.createObject(this, {
+                    path: source
+                });
                 completed = true;
             });
-    }
-
-    SequentialAnimation {
-        id: wipeAnim
-
-        NumberAnimation {
-            target: root
-            property: "wipeProgress"
-            from: 0.0
-            to: 1.0
-            duration: 2500
-            easing.type: Easing.Linear
-        }
-
-        ScriptAction {
-            script: {
-                if (root.wipeOldItem) {
-                    root.wipeOldItem.layer.enabled = false;
-                    root.wipeOldItem.destroy();
-                    root.wipeOldItem = null;
-                }
-                root.isWiping = false;
-            }
-        }
     }
 
     Loader {
@@ -147,24 +108,59 @@ Item {
 
             anchors.fill: parent
 
-            layer.enabled: root.isWiping && root.wipeOldItem === img
-            layer.effect: ShaderEffect {
-                property real progress: root.wipeProgress
+            opacity: 0
 
-                fragmentShader: "
-                    varying highp vec2 qt_TexCoord0;
-                    uniform sampler2D source;
-                    uniform lowp float qt_Opacity;
-                    uniform lowp float progress;
+            transform: Translate {
+                id: imgTranslate
 
-                    void main() {
-                        highp vec2 uv = qt_TexCoord0;
-                        lowp vec4 color = texture2D(source, uv);
-                        highp float diag = ((1.0 - uv.x) + uv.y) / 1.414;
-                        lowp float mask = smoothstep(progress - 0.08, progress + 0.08, diag);
-                        gl_FragColor = color * qt_Opacity * mask;
-                    }
-                "
+                x: 50
+                y: -50
+            }
+
+            onStatusChanged: {
+                if (status === Image.Ready) {
+                    anim.start();
+                    translateInX.start();
+                    translateInY.start();
+                }
+            }
+
+            Anim on opacity {
+                id: anim
+
+                type: Anim.SlowEffects
+                running: false
+                from: 0
+                to: 1
+                duration: 2500
+            }
+
+            NumberAnimation {
+                id: translateInX
+
+                target: imgTranslate
+                property: "x"
+                from: 50
+                to: 0
+                duration: 2500
+                easing.type: Easing.InOutCubic
+            }
+
+            NumberAnimation {
+                id: translateInY
+
+                target: imgTranslate
+                property: "y"
+                from: -50
+                to: 0
+                duration: 2500
+                easing.type: Easing.InOutCubic
+            }
+
+            Timer {
+                running: root.current !== img && root.current?.status === Image.Ready
+                interval: anim.duration
+                onTriggered: img.destroy()
             }
         }
     }
