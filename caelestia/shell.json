@@ -16,12 +16,12 @@
             "scale": 0.8406143960931769
         },
         "spacing": {
-            "scale": 0.7670648385913426
+            "scale": 0.72
         },
         "transparency": {
             "base": 0.7147366165611815,
             "enabled": true,
-            "layers": 0.4942642405063291
+            "layers": 0.45
         }
     },
     "background": {
@@ -101,7 +101,8 @@
                 "id": "power"
             }
         ],
-        "excludedScreens": [],
+        "excludedScreens": [
+        ],
         "persistent": true,
         "popouts": {
             "activeWindow": true,
@@ -147,24 +148,27 @@
         "tray": {
             "background": false,
             "compact": false,
-            "hiddenIcons": [],
-            "iconSubs": [],
+            "hiddenIcons": [
+            ],
+            "iconSubs": [
+            ],
             "recolour": true
         },
         "workspaces": {
             "activeIndicator": true,
-            "activeLabel": "\udb82\udfaf",
+            "activeLabel": "󰮯",
             "activeTrail": false,
             "capitalisation": "preserve",
-            "label": "\uf444  ",
+            "label": "  ",
             "maxWindowIcons": 0,
             "occupiedBg": true,
-            "occupiedLabel": "\udb82\udfaf",
+            "occupiedLabel": "󰮯",
             "perMonitorWorkspaces": true,
             "showWindows": false,
             "showWindowsOnSpecialWorkspaces": false,
             "shown": 5,
-            "specialWorkspaceIcons": [],
+            "specialWorkspaceIcons": [
+            ],
             "windowIcons": [
                 {
                     "icon": "sports_esports",
@@ -429,8 +433,10 @@
         "dragThreshold": 50,
         "enableDangerousActions": false,
         "enabled": true,
-        "favouriteApps": [],
-        "hiddenApps": [],
+        "favouriteApps": [
+        ],
+        "hiddenApps": [
+        ],
         "maxShown": 9,
         "maxWallpapers": 9,
         "showOnHover": false,
@@ -596,7 +602,8 @@
         },
         "vpn": {
             "enabled": false,
-            "provider": [],
+            "provider": [
+            ],
             "selectedProvider": ""
         }
     }
