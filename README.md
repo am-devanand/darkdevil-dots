@@ -1,50 +1,63 @@
 # DarkDevil Dots
 
-CachyOS + Hyprland + Caelestia-based personal setup. Replicate same setup on any laptop.
+A version-controlled, reproducible Caelestia-based desktop environment for CachyOS + Hyprland.
 
-Derived from / inspired by:
-- `caelestia-dots/shell` (GPL-3.0) - desktop shell
-- `caelestia-dots/caelestia` (GPL-3.0) - base dotfiles
-- JaKooLit Arch-Hyprland install model (copy-based)
-
-This repo does NOT rename internal `caelestia` IDs. Display brand is DarkDevil,
-internals stay `caelestia` so `caelestia-cli`, `qs -c caelestia`, AUR updates keep working.
-
-## Restore as-it-is (laptop 2 / fresh install)
+## Install
 
 ```bash
-git clone <your-url> ~/.local/share/darkdevil
+git clone https://github.com/am-devanand/darkdevil-dots.git ~/.local/share/darkdevil
 cd ~/.local/share/darkdevil
 ./install.sh
-hyprctl reload
-caelestia shell -d
 ```
 
-Backup of pre-change laptop 1 is NOT in this repo. Keep
-`DarkDevil-BACKUP-pre-change-2026-09-04.tar.gz` on USB + private remote.
+One command. Packages, configs, QML patches — all applied.
 
-## Daily workflow (laptop 1)
+## What's inside
+
+| Layer | What it controls | Files |
+|-------|-----------------|-------|
+| JSON | Theme, bar, sidebar, launcher, spacing, timeouts | `caelestia/shell.json` |
+| Lua | Startup hooks, keybinds | `hypr/modules/*.lua` |
+| QML | Notification cards, dashboard cards | `quickshell-overrides/` |
+| Script | One-command deploy | `install.sh` |
+
+## Key changes from stock Caelestia
+
+- Dark-first everforest theme locked
+- Right-side notification dock (Super+N)
+- Auto-open notif dock on login
+- Bar always visible, tray icons recoloured
+- Launcher fuzzy search all categories
+- Notification popups 4s, OSD 3s
+- Lock screen uses wallpaper
+- Tighter spacing, glass transparency
+- Dashboard hover on, utilities hover off
+- Notification + dashboard card borders
+
+## After Caelestia updates
 
 ```bash
-# before risky tweak
-cp ~/.config/caelestia/shell.json ~/shell.json.$(date +%H%M)
-
-# after good tweak - version it
-cp ~/.config/caelestia/shell.json ~/darkdevil-dots/caelestia/shell.json
-cp ~/caelestia/hypr/hyprland/* ~/darkdevil-dots/hypr/hyprland/ 2>/dev/null || cp -aL ~/.config/hypr/. ~/darkdevil-dots/hypr/
-cd ~/darkdevil-dots && git status && git add -A && git commit -m "tweak: ..."
-git push
+cd ~/.local/share/darkdevil
+git pull
+./install.sh
 ```
 
-## Layout
+QML patches are re-applied automatically. Live QML is backed up to `~/.config/quickshell/pre-darkdevil-YYYYMMDD/`.
 
-- `hypr/` -> `~/.config/hypr`
-- `caelestia/shell.json cli.json` -> `~/.config/caelestia/`
-- `foot/ fish/ btop/ fastfetch/ starship.toml` -> `~/.config/`
-- `quickshell-overrides/` -> only your QML patches, not full shell (AUR owns full shell)
-- `wallpapers/` -> `~/Pictures/wallpapers`
-- `packages-pacman.txt packages-aur.txt` -> reproducible packages
+## Tech stack
+
+- CachyOS (Arch-based)
+- Hyprland (Wayland compositor)
+- Caelestia Shell (Quickshell/QML)
+- Caelestia CLI (Python)
+- fish shell, foot terminal, starship prompt
+
+## Credits
+
+- [caelestia-dots/shell](https://github.com/caelestia-dots/shell) — desktop shell (GPL-3.0)
+- [caelestia-dots/caelestia](https://github.com/caelestia-dots/caelestia) — base dotfiles (GPL-3.0)
+- [JaKooLit](https://github.com/JaKooLit) — install model reference
 
 ## License
 
-Your own configs: yours. Anything copied from Caelestia: GPL-3.0, keep notices.
+Your own configs: yours. Anything derived from Caelestia: GPL-3.0, notices preserved.
