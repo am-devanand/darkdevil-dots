@@ -469,11 +469,11 @@
     "notifs": {
         "actionOnClick": false,
         "clearThreshold": 0.3,
-        "defaultExpireTimeout": 2000,
+        "defaultExpireTimeout": 4000,
         "expandThreshold": 20,
         "expire": true,
         "fullscreen": "on",
-        "fullscreenExpireTimeout": 2000,
+        "fullscreenExpireTimeout": 4000,
         "groupPreviewNum": 5,
         "openExpanded": true
     },
