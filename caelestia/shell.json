@@ -437,13 +437,13 @@
         ],
         "hiddenApps": [
         ],
-        "maxShown": 7,
+        "maxShown": 9,
         "maxWallpapers": 9,
         "showOnHover": false,
         "specialPrefix": "@",
         "useFuzzy": {
-            "actions": false,
-            "apps": false,
+            "actions": true,
+            "apps": true,
             "schemes": false,
             "variants": false,
             "wallpapers": false
