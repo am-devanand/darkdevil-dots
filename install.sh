@@ -44,6 +44,9 @@ rm -rf ~/.config/hypr-tmp-merge || true
 mkdir -p ~/.config/caelestia/monitors
 cp -a "$DOTDIR/caelestia/shell.json" ~/.config/caelestia/shell.json
 cp -a "$DOTDIR/caelestia/cli.json" ~/.config/caelestia/cli.json
+cp -a "$DOTDIR/caelestia/sidebar-waybar.json" ~/.config/caelestia/sidebar-waybar.json
+# hypr-user.conf is sourced LAST by hyprland.conf - DarkDevil login hooks (auto-open notif dock)
+cp -a "$DOTDIR/caelestia/hypr-user.conf" ~/.config/caelestia/hypr-user.conf
 # monitors are per-machine - only copy if missing
 for m in "$DOTDIR"/caelestia/monitors/*; do
   bn=$(basename "$m")
