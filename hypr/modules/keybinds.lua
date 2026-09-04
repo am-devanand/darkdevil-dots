@@ -233,11 +233,7 @@ hl.bind("SUPER + RETURN", hl.dsp.exec_cmd("foot"))
     -- Sleep
     hl.bind("SUPER + SHIFT + L", hl.dsp.exec_cmd("systemctl suspend-then-hibernate"), { locked = true })
 
-    -- Theme quick-toggle
-    hl.bind("SUPER + SHIFT + D", hl.dsp.exec_cmd("~/.config/caelestia/scripts/scheme-toggle.sh mode"))
-    hl.bind("SUPER + SHIFT + V", hl.dsp.exec_cmd("~/.config/caelestia/scripts/scheme-toggle.sh variant"))
-    hl.bind("SUPER + SHIFT + N", hl.dsp.exec_cmd("~/.config/caelestia/scripts/scheme-toggle.sh scheme"))
-    hl.bind("SUPER + SHIFT + H", hl.dsp.exec_cmd("~/.config/caelestia/scripts/scheme-toggle.sh random"))
+    hl.bind("SUPER + SHIFT + H", hl.dsp.exec_cmd("thunar ~/Pictures/Wallpapers/"))
 
     -- Clipboard and emoji picker
     hl.bind("SUPER + V", hl.dsp.exec_cmd("pkill fuzzel || caelestia clipboard"))
