@@ -33,6 +33,9 @@ hl.on("hyprland.start", function()
 
     -- Start shell
     hl.exec_cmd("caelestia shell -d")
+
+    -- DarkDevil: auto-open notification dock on login
+    hl.exec_cmd("sleep 5 && caelestia shell drawers toggle sidebar")
 end)
 
 -- `exec =` (runs on every reload) -> config.reloaded

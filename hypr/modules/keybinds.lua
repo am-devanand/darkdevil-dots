@@ -57,6 +57,7 @@ hl.define_submap("global", function()
 
 hl.bind("SUPER + B", hl.dsp.exec_cmd("brave"))
 hl.bind("SUPER + E", hl.dsp.exec_cmd("thunar"))
+hl.bind("SUPER + N", hl.dsp.exec_cmd("caelestia shell drawers toggle sidebar"))
 hl.bind("SUPER + C", hl.dsp.exec_cmd("codium"))
 hl.bind("SUPER + T", hl.dsp.exec_cmd("tradingview"))
 hl.bind("SUPER + W", hl.dsp.exec_cmd("kwrite"))
