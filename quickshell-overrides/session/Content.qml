@@ -15,114 +15,133 @@ Item {
 
     required property ScreenState screenState
 
-    implicitWidth: bg.implicitWidth
-    implicitHeight: bg.implicitHeight
-
-    // Dark cinematic backdrop
-    StyledRect {
-        id: bg
-
-        anchors.centerIn: parent
-        implicitWidth: col.implicitWidth + Tokens.padding.extraLarge * 2
-        implicitHeight: col.implicitHeight + Tokens.padding.extraLarge * 2
-        radius: Tokens.rounding.extraLarge
-        color: Qt.alpha(Colours.tPalette.m3surfaceContainer, 0.92)
-    }
+    implicitWidth: col.implicitWidth
+    implicitHeight: col.implicitHeight
 
     Column {
         id: col
 
-        anchors.centerIn: bg
-        spacing: Tokens.spacing.medium
+        anchors.centerIn: parent
+        spacing: Tokens.spacing.small
 
-        StyledText {
+        // Slim glass pill
+        StyledRect {
+            id: bg
+
             anchors.horizontalCenter: parent.horizontalCenter
-            text: "Power Menu"
-            font: Tokens.font.body.builders.medium.weight(Font.Medium).build()
-            color: Colours.palette.m3onSurface
+            implicitWidth: row.implicitWidth + Tokens.padding.large * 2
+            implicitHeight: row.implicitHeight + Tokens.padding.medium * 2
+            radius: height / 2
+            color: Qt.alpha(Colours.tPalette.m3surfaceContainer, 0.92)
+
+            Row {
+                id: row
+
+                anchors.centerIn: parent
+                spacing: Tokens.spacing.small
+
+                SessionPill {
+                    id: logout
+
+                    icon: Config.session.icons.logout
+                    label: "Log Out"
+                    hint: "L"
+                    command: Config.session.commands.logout
+
+                    KeyNavigation.right: shutdown
+
+                    Component.onCompleted: forceActiveFocus()
+
+                    Connections {
+                        function onLauncherChanged(): void {
+                            if (!root.screenState.launcher)
+                                logout.forceActiveFocus();
+                        }
+
+                        target: root.screenState
+                    }
+                }
+
+                Rectangle {
+                    anchors.verticalCenter: parent.verticalCenter
+                    implicitWidth: 1
+                    implicitHeight: 36
+                    color: Qt.alpha(Colours.palette.m3onSurface, 0.14)
+                }
+
+                SessionPill {
+                    id: shutdown
+
+                    icon: Config.session.icons.shutdown
+                    label: "Shut Down"
+                    hint: "hold S"
+                    isConfirm: true
+                    isDanger: true
+                    command: Config.session.commands.shutdown
+
+                    KeyNavigation.left: logout
+                    KeyNavigation.right: hibernate
+                }
+
+                Rectangle {
+                    anchors.verticalCenter: parent.verticalCenter
+                    implicitWidth: 1
+                    implicitHeight: 36
+                    color: Qt.alpha(Colours.palette.m3onSurface, 0.14)
+                }
+
+                SessionPill {
+                    id: hibernate
+
+                    icon: Config.session.icons.hibernate
+                    label: "Hibernate"
+                    hint: "H"
+                    command: Config.session.commands.hibernate
+
+                    KeyNavigation.left: shutdown
+                    KeyNavigation.right: reboot
+                }
+
+                Rectangle {
+                    anchors.verticalCenter: parent.verticalCenter
+                    implicitWidth: 1
+                    implicitHeight: 36
+                    color: Qt.alpha(Colours.palette.m3onSurface, 0.14)
+                }
+
+                SessionPill {
+                    id: reboot
+
+                    icon: Config.session.icons.reboot
+                    label: "Reboot"
+                    hint: "hold R"
+                    isConfirm: true
+                    command: Config.session.commands.reboot
+
+                    KeyNavigation.left: hibernate
+                }
+            }
         }
 
         StyledText {
             anchors.horizontalCenter: parent.horizontalCenter
-            text: "← → navigate  •  L S H R shortcuts  •  esc closes"
+            text: "hold click on Shut Down / Reboot to confirm  •  esc closes"
             font: Tokens.font.body.small
             color: Colours.palette.m3onSurfaceVariant
         }
-
-        Row {
-            id: row
-
-            anchors.horizontalCenter: parent.horizontalCenter
-            spacing: Tokens.spacing.large
-
-            SessionCard {
-                id: logout
-
-                icon: Config.session.icons.logout
-                label: "Log Out"
-                hint: "L"
-                command: Config.session.commands.logout
-
-                KeyNavigation.right: shutdown
-
-                Component.onCompleted: forceActiveFocus()
-
-                Connections {
-                    function onLauncherChanged(): void {
-                        if (!root.screenState.launcher)
-                            logout.forceActiveFocus();
-                    }
-
-                    target: root.screenState
-                }
-            }
-
-            SessionCard {
-                id: shutdown
-
-                icon: Config.session.icons.shutdown
-                label: "Shut Down"
-                hint: "S"
-                isDanger: true
-                command: Config.session.commands.shutdown
-
-                KeyNavigation.left: logout
-                KeyNavigation.right: hibernate
-            }
-
-            SessionCard {
-                id: hibernate
-
-                icon: Config.session.icons.hibernate
-                label: "Hibernate"
-                hint: "H"
-                command: Config.session.commands.hibernate
-
-                KeyNavigation.left: shutdown
-                KeyNavigation.right: reboot
-            }
-
-            SessionCard {
-                id: reboot
-
-                icon: Config.session.icons.reboot
-                label: "Reboot"
-                hint: "R"
-                command: Config.session.commands.reboot
-
-                KeyNavigation.left: hibernate
-            }
-        }
     }
 
-    component SessionCard: ButtonBase {
-        id: card
+    component SessionPill: ButtonBase {
+        id: pill
 
         required property string icon
         required property string label
         required property string hint
         required property list<string> command
         property bool isDanger: false
+        property bool isConfirm: false
+        property int holdMs: 900
+        property real holdProgress: 0
 
         function exec(): void {
             if (!SessionManager.exec(command))
@@ -150,19 +169,56 @@ Item {
             return false;
         }
 
-        implicitWidth: 132
-        implicitHeight: 152
+        implicitWidth: 140
+        implicitHeight: 60
         type: ButtonBase.Tonal
 
-        inactiveColour: isDanger ? Qt.alpha(Colours.palette.m3error, activeFocus ? 1 : 0.16) : activeFocus ? Colours.palette.m3secondaryContainer : Colours.tPalette.m3surfaceContainer
+        inactiveColour: isDanger ? Qt.alpha(Colours.palette.m3error, activeFocus ? 1 : 0.14) : activeFocus ? Colours.palette.m3secondaryContainer : "transparent"
         activeColour: isDanger ? Colours.palette.m3error : Colours.palette.m3secondaryContainer
         inactiveOnColour: isDanger ? (activeFocus ? Colours.palette.m3onPrimary : Colours.palette.m3error) : activeFocus ? Colours.palette.m3onSecondaryContainer : Colours.palette.m3onSurface
         activeOnColour: isDanger ? Colours.palette.m3onPrimary : Colours.palette.m3onSecondaryContainer
-        radius: activeFocus ? Tokens.rounding.extraLarge : Tokens.rounding.large
+        radius: height / 2
         font: Tokens.font.body.small
-        onClicked: exec()
 
-        scale: activeFocus ? 1.06 : hovered ? 1.03 : 1
+        // Hold-to-confirm only gates pointer clicks. Keyboard stays instant.
+        onClicked: {
+            if (!pill.isConfirm)
+                pill.exec();
+        }
+        onPressedChanged: {
+            if (!pill.isConfirm)
+                return;
+            if (pill.pressed) {
+                pill.holdProgress = 0;
+                fillAnim.restart();
+                holdTimer.restart();
+            } else {
+                if (holdTimer.running) {
+                    holdTimer.stop();
+                    fillAnim.stop();
+                    pill.holdProgress = 0;
+                }
+            }
+        }
+
+        Timer {
+            id: holdTimer
+
+            interval: pill.holdMs
+            onTriggered: pill.exec()
+        }
+
+        NumberAnimation {
+            id: fillAnim
+
+            target: pill
+            property: "holdProgress"
+            from: 0
+            to: 1
+            duration: pill.holdMs
+        }
+
+        scale: activeFocus ? 1.05 : hovered ? 1.02 : 1
         Behavior on scale {
             Anim {
                 type: Anim.DefaultEffects
@@ -172,41 +228,46 @@ Item {
         border.width: activeFocus ? 2 : 0
         border.color: isDanger ? Colours.palette.m3error : Colours.palette.m3primary
 
-        Column {
+        Row {
             anchors.centerIn: parent
             spacing: Tokens.spacing.small
 
             MaterialIcon {
-                anchors.horizontalCenter: parent.horizontalCenter
-                text: card.icon
-                color: card.onColour
+                anchors.verticalCenter: parent.verticalCenter
+                text: pill.icon
+                color: pill.onColour
                 fill: 1
-                fontStyle: Tokens.font.icon.builders.large.scale(1.7).build()
+                fontStyle: Tokens.font.icon.builders.large.scale(1.25).build()
             }
 
-            StyledText {
-                anchors.horizontalCenter: parent.horizontalCenter
-                text: card.label
-                font: Tokens.font.body.builders.small.weight(Font.Medium).build()
-                color: card.onColour
-            }
-
-            StyledRect {
-                anchors.horizontalCenter: parent.horizontalCenter
-                implicitWidth: hintLabel.implicitWidth + Tokens.padding.small * 2
-                implicitHeight: hintLabel.implicitHeight + Tokens.padding.extraSmall
-                radius: height / 2
-                color: Qt.alpha(card.onColour, card.activeFocus ? 0.22 : 0.1)
+            Column {
+                anchors.verticalCenter: parent.verticalCenter
+                spacing: 1
 
                 StyledText {
-                    id: hintLabel
+                    text: pill.label
+                    font: Tokens.font.body.builders.small.weight(Font.Medium).build()
+                    color: pill.onColour
+                }
 
-                    anchors.centerIn: parent
-                    text: card.hint
+                StyledText {
+                    text: pill.hint
                     font: Tokens.font.body.small
-                    color: card.onColour
+                    color: pill.isConfirm && pill.pressed ? pill.onColour : Colours.palette.m3onSurfaceVariant
                 }
             }
+        }
+
+        // Hold progress bar
+        StyledRect {
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.bottom: parent.bottom
+            anchors.bottomMargin: 8
+            implicitWidth: (parent.width - 32) * pill.holdProgress
+            implicitHeight: 3
+            radius: 2
+            color: pill.isDanger ? Colours.palette.m3error : Colours.palette.m3primary
+            visible: pill.isConfirm && pill.holdProgress > 0
         }
 
         Keys.onEnterPressed: exec()
