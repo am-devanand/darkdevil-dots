@@ -191,7 +191,7 @@ StyledWindow {
         PanelBg {
             id: sessionBg
 
-            panel: panels.session
+            panel: panels.sessionWrapper
             deformAmount: 0.2
         }
 

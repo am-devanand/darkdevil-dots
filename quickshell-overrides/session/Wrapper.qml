@@ -15,9 +15,8 @@ Item {
     property real offsetScale: shouldBeActive ? 0 : 1
 
     visible: offsetScale < 1
-    anchors.fill: parent
     implicitWidth: content.implicitWidth
-    implicitHeight: content.implicitHeight || 510
+    implicitHeight: content.implicitHeight || 100
     opacity: 1 - offsetScale
 
     Behavior on offsetScale {

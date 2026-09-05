@@ -43,7 +43,7 @@ Item {
 
         anchors.verticalCenter: parent.verticalCenter
         anchors.right: parent.right
-        anchors.rightMargin: sidebar.width * (1 - sidebar.offsetScale)
+        anchors.rightMargin: sidebar.width * (1 - sidebar.offsetScale) + session.width * (1 - session.offsetScale)
         clip: sidebar.visible || session.visible
 
         implicitWidth: osd.implicitWidth * (1 - osd.offsetScale)
@@ -77,8 +77,7 @@ Item {
     Item {
         id: sessionWrapper
 
-        anchors.fill: parent
-        clip: sidebar.visible
+        anchors.centerIn: parent
 
         implicitWidth: session.implicitWidth * (1 - session.offsetScale)
         implicitHeight: session.implicitHeight
@@ -89,7 +88,7 @@ Item {
             screenState: root.screenState
             sidebarVisible: sidebar.visible
 
-            anchors.fill: parent
+            anchors.centerIn: parent
         }
     }
 
