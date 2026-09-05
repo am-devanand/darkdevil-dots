@@ -7,3 +7,5 @@ hypr/hypr-user.conf
 secrets*
 *token*
 *password*
+# wallpapers (899MB) travel out-of-band, never commit them
+wallpapers/
