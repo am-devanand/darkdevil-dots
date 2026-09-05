@@ -192,7 +192,7 @@ hl.bind("SUPER + RETURN", hl.dsp.exec_cmd("foot"))
     hl.bind(combo(vars.kbWindowFullscreen), hl.dsp.window.fullscreen({ mode = "fullscreen", action = "toggle" }))
     hl.bind(combo(vars.kbWindowBorderedFullscreen), hl.dsp.window.fullscreen({ mode = "maximized", action = "toggle" }))
     hl.bind(combo(vars.kbToggleWindowFloating), hl.dsp.window.float({ action = "toggle" }))
-    hl.bind(combo(vars.kbCloseWindow), hl.dsp.window.kill())
+    hl.bind(combo(vars.kbCloseWindow), hl.dsp.window.close())
 
     -- Special workspace toggles
     hl.bind(combo(vars.kbSystemMonitor), hl.dsp.exec_cmd("caelestia toggle sysmon"))
@@ -233,7 +233,6 @@ hl.bind("SUPER + RETURN", hl.dsp.exec_cmd("foot"))
     -- Sleep
     hl.bind("SUPER + SHIFT + L", hl.dsp.exec_cmd("systemctl suspend-then-hibernate"), { locked = true })
 
-    hl.bind("SUPER + SHIFT + H", hl.dsp.exec_cmd("qs -c caelestia ipc call drawers toggle launcher"))
 
     -- Clipboard and emoji picker
     hl.bind("SUPER + V", hl.dsp.exec_cmd("pkill fuzzel || caelestia clipboard"))
