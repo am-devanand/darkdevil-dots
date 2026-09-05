@@ -58,9 +58,8 @@ for app in foot fish btop fastfetch; do
 done
 [ -f "$DOTDIR/starship.toml" ] && cp -a "$DOTDIR/starship.toml" ~/.config/starship.toml
 
-# wallpapers (capital W — matches Caelestia launcher expectation)
-mkdir -p ~/Pictures/Wallpapers
-[ -d "$DOTDIR/wallpapers" ] && cp -an "$DOTDIR/wallpapers/." ~/Pictures/Wallpapers/ || true
+mkdir -p ~/Pictures/wallpapers
+[ -d "$DOTDIR/wallpapers" ] && cp -an "$DOTDIR/wallpapers/." ~/Pictures/wallpapers/ || true
 
 # QML overrides (notification cards, dashboard, etc.)
 QS_DIR="$HOME/.config/quickshell/caelestia/modules"

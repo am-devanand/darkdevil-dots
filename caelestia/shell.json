@@ -489,7 +489,7 @@
         "mediaGif": "root:/assets/bongocat.gif",
         "noNotifsPic": "root:/assets/dino.png",
         "sessionGif": "root:/assets/kurukuru.gif",
-        "wallpaperDir": "/home/darkdevil/Pictures/Wallpapers"
+        "wallpaperDir": "/home/darkdevil/Pictures/wallpapers"
     },
     "services": {
         "audioIncrement": 0.1,
