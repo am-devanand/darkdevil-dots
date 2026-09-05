@@ -1,6 +1,7 @@
 pragma ComponentBehavior: Bound
 
 import QtQuick
+import QtQuick.Layouts
 import Quickshell
 import Caelestia
 import Caelestia.Config
@@ -15,132 +16,124 @@ Item {
 
     required property ScreenState screenState
 
-    implicitWidth: col.implicitWidth
-    implicitHeight: col.implicitHeight
+    implicitWidth: bg.implicitWidth
+    implicitHeight: bg.implicitHeight
 
-    Column {
-        id: col
+    StyledRect {
+        id: bg
 
         anchors.centerIn: parent
-        spacing: Tokens.spacing.small
+        implicitWidth: col.implicitWidth + Tokens.padding.large * 2
+        implicitHeight: col.implicitHeight + Tokens.padding.large * 2
+        radius: Tokens.rounding.extraLarge
+        color: Qt.alpha(Colours.tPalette.m3surfaceContainer, 0.94)
 
-        // Slim glass pill
-        StyledRect {
-            id: bg
+        Column {
+            id: col
 
-            anchors.horizontalCenter: parent.horizontalCenter
-            implicitWidth: row.implicitWidth + Tokens.padding.large * 2
-            implicitHeight: row.implicitHeight + Tokens.padding.medium * 2
-            radius: height / 2
-            color: Qt.alpha(Colours.tPalette.m3surfaceContainer, 0.92)
+            anchors.centerIn: parent
+            spacing: Tokens.spacing.small
 
-            Row {
-                id: row
+            SessionRow {
+                id: reboot
 
-                anchors.centerIn: parent
-                spacing: Tokens.spacing.small
+                icon: Config.session.icons.reboot
+                label: "Reboot"
+                key: "R"
+                command: Config.session.commands.reboot
 
-                SessionPill {
-                    id: logout
+                KeyNavigation.down: logout
 
-                    icon: Config.session.icons.logout
-                    label: "Log Out"
-                    hint: "L"
-                    command: Config.session.commands.logout
-
-                    KeyNavigation.right: shutdown
-
-                    Component.onCompleted: forceActiveFocus()
-
-                    Connections {
-                        function onLauncherChanged(): void {
-                            if (!root.screenState.launcher)
-                                logout.forceActiveFocus();
-                        }
-
-                        target: root.screenState
+                Connections {
+                    function onLauncherChanged(): void {
+                        if (!root.screenState.launcher)
+                            logout.forceActiveFocus();
                     }
-                }
 
-                Rectangle {
-                    anchors.verticalCenter: parent.verticalCenter
-                    implicitWidth: 1
-                    implicitHeight: 36
-                    color: Qt.alpha(Colours.palette.m3onSurface, 0.14)
-                }
-
-                SessionPill {
-                    id: shutdown
-
-                    icon: Config.session.icons.shutdown
-                    label: "Shut Down"
-                    hint: "hold S"
-                    isConfirm: true
-                    isDanger: true
-                    command: Config.session.commands.shutdown
-
-                    KeyNavigation.left: logout
-                    KeyNavigation.right: hibernate
-                }
-
-                Rectangle {
-                    anchors.verticalCenter: parent.verticalCenter
-                    implicitWidth: 1
-                    implicitHeight: 36
-                    color: Qt.alpha(Colours.palette.m3onSurface, 0.14)
-                }
-
-                SessionPill {
-                    id: hibernate
-
-                    icon: Config.session.icons.hibernate
-                    label: "Hibernate"
-                    hint: "H"
-                    command: Config.session.commands.hibernate
-
-                    KeyNavigation.left: shutdown
-                    KeyNavigation.right: reboot
-                }
-
-                Rectangle {
-                    anchors.verticalCenter: parent.verticalCenter
-                    implicitWidth: 1
-                    implicitHeight: 36
-                    color: Qt.alpha(Colours.palette.m3onSurface, 0.14)
-                }
-
-                SessionPill {
-                    id: reboot
-
-                    icon: Config.session.icons.reboot
-                    label: "Reboot"
-                    hint: "hold R"
-                    isConfirm: true
-                    command: Config.session.commands.reboot
-
-                    KeyNavigation.left: hibernate
+                    target: root.screenState
                 }
             }
-        }
 
-        StyledText {
-            anchors.horizontalCenter: parent.horizontalCenter
-            text: "hold click on Shut Down / Reboot to confirm  •  esc closes"
-            font: Tokens.font.body.small
-            color: Colours.palette.m3onSurfaceVariant
+            SessionRow {
+                id: logout
+
+                icon: Config.session.icons.logout
+                label: "Log Out"
+                key: "X"
+                command: Config.session.commands.logout
+
+                KeyNavigation.up: reboot
+                KeyNavigation.down: poweroff
+
+                Component.onCompleted: forceActiveFocus()
+            }
+
+            SessionRow {
+                id: poweroff
+
+                icon: Config.session.icons.shutdown
+                label: "Power Off"
+                key: "P"
+                isDanger: true
+                command: Config.session.commands.shutdown
+
+                KeyNavigation.up: logout
+                KeyNavigation.down: lock
+            }
+
+            SessionRow {
+                id: lock
+
+                icon: "lock"
+                label: "Lock"
+                key: "L"
+                command: ["loginctl", "lock-session"]
+
+                KeyNavigation.up: poweroff
+                KeyNavigation.down: suspend
+            }
+
+            SessionRow {
+                id: suspend
+
+                icon: "bedtime"
+                label: "Suspend"
+                key: "S"
+                command: ["systemctl", "suspend"]
+
+                KeyNavigation.up: lock
+                KeyNavigation.down: restartdms
+            }
+
+            SessionRow {
+                id: restartdms
+
+                icon: "refresh"
+                label: "Restart DMS"
+                key: "D"
+                command: ["sh", "-c", "qs -c caelestia kill; sleep 0.2; caelestia shell -d"]
+
+                KeyNavigation.up: suspend
+            }
+
+            StyledText {
+                anchors.horizontalCenter: parent.horizontalCenter
+                text: "Hold to confirm (500 ms)"
+                font: Tokens.font.body.small
+                color: Colours.palette.m3onSurfaceVariant
+            }
         }
     }
 
-    component SessionPill: ButtonBase {
-        id: pill
+    component SessionRow: ButtonBase {
+        id: row
 
         required property string icon
         required property string label
-        required property string hint
+        required property string key
         required property list<string> command
         property bool isDanger: false
-        property bool isConfirm: false
-        property int holdMs: 900
+        property int holdMs: 500
         property real holdProgress: 0
 
         function exec(): void {
@@ -149,54 +142,59 @@ Item {
         }
 
         function handleShortcut(event) : bool {
-            if (event.key === Qt.Key_L) {
+            if (event.key === Qt.Key_R) {
+                reboot.exec();
+                event.accepted = true;
+                return true;
+            } else if (event.key === Qt.Key_X) {
                 logout.exec();
                 event.accepted = true;
                 return true;
+            } else if (event.key === Qt.Key_P) {
+                poweroff.exec();
+                event.accepted = true;
+                return true;
+            } else if (event.key === Qt.Key_L) {
+                lock.exec();
+                event.accepted = true;
+                return true;
             } else if (event.key === Qt.Key_S) {
-                shutdown.exec();
+                suspend.exec();
                 event.accepted = true;
                 return true;
-            } else if (event.key === Qt.Key_H) {
-                hibernate.exec();
-                event.accepted = true;
-                return true;
-            } else if (event.key === Qt.Key_R) {
-                reboot.exec();
+            } else if (event.key === Qt.Key_D) {
+                restartdms.exec();
                 event.accepted = true;
                 return true;
             }
             return false;
         }
 
-        implicitWidth: 140
-        implicitHeight: 60
+        implicitWidth: 380
+        implicitHeight: 56
         type: ButtonBase.Tonal
 
-        inactiveColour: isDanger ? Qt.alpha(Colours.palette.m3error, activeFocus ? 1 : 0.14) : activeFocus ? Colours.palette.m3secondaryContainer : "transparent"
+        inactiveColour: isDanger ? Qt.alpha(Colours.palette.m3error, activeFocus ? 1 : 0.14) : activeFocus ? Colours.palette.m3secondaryContainer : Colours.tPalette.m3surfaceContainer
         activeColour: isDanger ? Colours.palette.m3error : Colours.palette.m3secondaryContainer
         inactiveOnColour: isDanger ? (activeFocus ? Colours.palette.m3onPrimary : Colours.palette.m3error) : activeFocus ? Colours.palette.m3onSecondaryContainer : Colours.palette.m3onSurface
         activeOnColour: isDanger ? Colours.palette.m3onPrimary : Colours.palette.m3onSecondaryContainer
-        radius: height / 2
+        radius: activeFocus ? Tokens.rounding.extraLarge : Tokens.rounding.large
         font: Tokens.font.body.small
 
-        // Hold-to-confirm only gates pointer clicks. Keyboard stays instant.
+        // Hold-to-confirm gates pointer clicks. Keyboard stays instant.
         onClicked: {
-            if (!pill.isConfirm)
-                pill.exec();
+            // Single clicks do nothing; hold timer fires exec.
         }
         onPressedChanged: {
-            if (!pill.isConfirm)
-                return;
-            if (pill.pressed) {
-                pill.holdProgress = 0;
+            if (row.pressed) {
+                row.holdProgress = 0;
                 fillAnim.restart();
                 holdTimer.restart();
             } else {
                 if (holdTimer.running) {
                     holdTimer.stop();
                     fillAnim.stop();
-                    pill.holdProgress = 0;
+                    row.holdProgress = 0;
                 }
             }
         }
@@ -204,70 +202,84 @@ Item {
         Timer {
             id: holdTimer
 
-            interval: pill.holdMs
-            onTriggered: pill.exec()
+            interval: row.holdMs
+            onTriggered: row.exec()
         }
 
         NumberAnimation {
             id: fillAnim
 
-            target: pill
+            target: row
             property: "holdProgress"
             from: 0
             to: 1
-            duration: pill.holdMs
-        }
-
-        scale: activeFocus ? 1.05 : hovered ? 1.02 : 1
-        Behavior on scale {
-            Anim {
-                type: Anim.DefaultEffects
-            }
+            duration: row.holdMs
         }
 
         border.width: activeFocus ? 2 : 0
-        border.color: isDanger ? Colours.palette.m3error : Colours.palette.m3primary
+        border.color: isDanger && activeFocus ? Colours.palette.m3error : Colours.palette.m3primary
 
-        Row {
-            anchors.centerIn: parent
-            spacing: Tokens.spacing.small
+        RowLayout {
+            anchors.fill: parent
+            anchors.leftMargin: Tokens.padding.medium
+            anchors.rightMargin: Tokens.padding.medium
+            spacing: Tokens.spacing.medium
 
             MaterialIcon {
-                anchors.verticalCenter: parent.verticalCenter
-                text: pill.icon
-                color: pill.onColour
+                Layout.alignment: Qt.AlignVCenter
+                text: row.icon
+                color: row.onColour
                 fill: 1
-                fontStyle: Tokens.font.icon.builders.large.scale(1.25).build()
+                fontStyle: Tokens.font.icon.builders.medium.scale(1.2).build()
             }
 
-            Column {
-                anchors.verticalCenter: parent.verticalCenter
-                spacing: 1
+            StyledText {
+                Layout.alignment: Qt.AlignVCenter
+                Layout.fillWidth: true
+                text: row.label
+                font: Tokens.font.body.builders.small.weight(Font.Medium).build()
+                color: row.onColour
+            }
+
+            StyledRect {
+                Layout.alignment: Qt.AlignVCenter
+                implicitWidth: keyLabel.implicitWidth + Tokens.padding.small * 2
+                implicitHeight: keyLabel.implicitHeight + Tokens.padding.extraSmall
+                radius: height / 2
+                color: Qt.alpha(row.onColour, row.activeFocus ? 0.22 : 0.1)
 
                 StyledText {
-                    text: pill.label
-                    font: Tokens.font.body.builders.small.weight(Font.Medium).build()
-                    color: pill.onColour
-                }
+                    id: keyLabel
 
-                StyledText {
-                    text: pill.hint
+                    anchors.centerIn: parent
+                    text: row.key
                     font: Tokens.font.body.small
-                    color: pill.isConfirm && pill.pressed ? pill.onColour : Colours.palette.m3onSurfaceVariant
+                    color: row.onColour
                 }
             }
         }
 
         // Hold progress bar
         StyledRect {
-            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.left: parent.left
+            anchors.right: parent.right
             anchors.bottom: parent.bottom
-            anchors.bottomMargin: 8
-            implicitWidth: (parent.width - 32) * pill.holdProgress
+            anchors.leftMargin: Tokens.padding.medium
+            anchors.rightMargin: Tokens.padding.medium
+            anchors.bottomMargin: 6
             implicitHeight: 3
             radius: 2
-            color: pill.isDanger ? Colours.palette.m3error : Colours.palette.m3primary
-            visible: pill.isConfirm && pill.holdProgress > 0
+            color: "transparent"
+
+            StyledRect {
+                anchors.left: parent.left
+                anchors.verticalCenter: parent.verticalCenter
+                implicitWidth: (parent.width) * row.holdProgress
+                implicitHeight: 3
+                radius: 2
+                color: row.isDanger ? Colours.palette.m3error : Colours.palette.m3primary
+                visible: row.holdProgress > 0
+            }
         }
 
         Keys.onEnterPressed: exec()
@@ -280,19 +292,19 @@ Item {
                 return;
 
             if (event.modifiers & Qt.ControlModifier) {
-                if ((event.key === Qt.Key_J || event.key === Qt.Key_N) && KeyNavigation.right) {
-                    KeyNavigation.right.focus = true;
+                if ((event.key === Qt.Key_J || event.key === Qt.Key_N) && KeyNavigation.down) {
+                    KeyNavigation.down.focus = true;
                     event.accepted = true;
-                } else if ((event.key === Qt.Key_K || event.key === Qt.Key_P) && KeyNavigation.left) {
-                    KeyNavigation.left.focus = true;
+                } else if ((event.key === Qt.Key_K || event.key === Qt.Key_P) && KeyNavigation.up) {
+                    KeyNavigation.up.focus = true;
                     event.accepted = true;
                 }
-            } else if (event.key === Qt.Key_Tab && KeyNavigation.right) {
-                KeyNavigation.right.focus = true;
+            } else if (event.key === Qt.Key_Tab && KeyNavigation.down) {
+                KeyNavigation.down.focus = true;
                 event.accepted = true;
             } else if (event.key === Qt.Key_Backtab || (event.key === Qt.Key_Tab && (event.modifiers & Qt.ShiftModifier))) {
-                if (KeyNavigation.left) {
-                    KeyNavigation.left.focus = true;
+                if (KeyNavigation.up) {
+                    KeyNavigation.up.focus = true;
                     event.accepted = true;
                 }
             }
