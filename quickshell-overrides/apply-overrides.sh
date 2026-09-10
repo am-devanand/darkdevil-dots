@@ -13,8 +13,10 @@ cp -a "$QS_DIR/notifications" "$BACKUP/" 2>/dev/null || true
 cp -a "$QS_DIR/bar" "$BACKUP/" 2>/dev/null || true
 cp -a "$QS_DIR/drawers" "$BACKUP/" 2>/dev/null || true
 cp -a "$QS_DIR/background" "$BACKUP/" 2>/dev/null || true
+cp -a "$QS_DIR/session" "$BACKUP/" 2>/dev/null || true
+cp -a "$QS_DIR/lock" "$BACKUP/" 2>/dev/null || true
 
-for module in notifications bar drawers dashboard background session; do
+for module in notifications bar drawers dashboard background session lock; do
   if [ -d "$OVERRIDES/$module" ]; then
     msg "Applying $module overrides"
     mkdir -p "$QS_DIR/$module"

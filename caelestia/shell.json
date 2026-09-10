@@ -263,7 +263,7 @@
                 }
             ]
         },
-        "logo": "",
+        "logo": "caelestia",
         "mediaGifSpeedAdjustment": 300,
         "sessionGifSpeed": 0.7,
         "showOverFullscreen": false
@@ -518,9 +518,9 @@
                 "hibernate"
             ],
             "logout": [
-                "loginctl",
-                "terminate-user",
-                ""
+                "sh",
+                "-c",
+                "loginctl terminate-user $USER"
             ],
             "reboot": [
                 "systemctl",

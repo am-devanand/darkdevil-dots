@@ -34,6 +34,12 @@ Item {
             anchors.centerIn: parent
             spacing: Tokens.spacing.small
 
+            Logo {
+                Layout.alignment: Qt.AlignHCenter
+                Layout.preferredWidth: 48
+                Layout.preferredHeight: 48
+            }
+
             SessionRow {
                 id: reboot
 

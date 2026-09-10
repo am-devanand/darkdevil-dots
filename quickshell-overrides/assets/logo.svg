@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 128 128" width="128" height="128" xmlns="http://www.w3.org/2000/svg">
+  <!-- Left horn -->
+  <path d="M 32 68 L 16 16 L 48 56 Z" fill="#FFD700"/>
+  <!-- Left flame tip -->
+  <path d="M 16 16 C 14 10 22 4 26 12 C 28 6 34 8 32 16 L 26 12 Z" fill="#FF6B00"/>
+  <!-- Right horn -->
+  <path d="M 96 68 L 112 16 L 80 56 Z" fill="#FFD700"/>
+  <!-- Right flame tip -->
+  <path d="M 112 16 C 114 10 106 4 102 12 C 100 6 94 8 96 16 L 102 12 Z" fill="#FF6B00"/>
+  <!-- Bottom V / chin -->
+  <path d="M 32 68 L 64 100 L 96 68 Z" fill="#FFD700"/>
+</svg>
