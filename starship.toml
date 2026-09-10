@@ -89,7 +89,6 @@ $status\
 $os\
 $battery\
 $time"""
-get = "scan_timeout"
 
 [fill]
 symbol = ' '
