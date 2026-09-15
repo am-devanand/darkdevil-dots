@@ -179,6 +179,7 @@ StyledWindow {
 
             panel: panels.dashboard
             deformAmount: 0.1
+            visible: false // DarkDevil: glassy dashboard, cards float over wallpaper
         }
 
         PanelBg {

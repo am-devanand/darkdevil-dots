@@ -2,6 +2,7 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 import QtQuick.Layouts
+import QtQuick.Effects
 import Quickshell
 import Caelestia
 import Caelestia.Config
@@ -16,139 +17,151 @@ Item {
 
     required property ScreenState screenState
 
-    implicitWidth: bg.implicitWidth
-    implicitHeight: bg.implicitHeight
+    readonly property real screenW: (QsWindow.window as QsWindow)?.screen.width ?? 1920
+    readonly property real screenH: (QsWindow.window as QsWindow)?.screen.height ?? 1080
 
-    StyledRect {
-        id: bg
+    implicitWidth: screenW
+    implicitHeight: screenH
 
-        anchors.centerIn: parent
-        implicitWidth: col.implicitWidth + Tokens.padding.large * 2
-        implicitHeight: col.implicitHeight + Tokens.padding.large * 2
-        radius: Tokens.rounding.extraLarge
-        color: Qt.alpha(Colours.tPalette.m3surfaceContainer, 0.94)
+    // Blurred wallpaper background (wleave look, user's own wallpaper)
+    Item {
+        anchors.fill: parent
 
-        Column {
-            id: col
+        layer.enabled: true
+        layer.effect: MultiEffect {
+            autoPaddingEnabled: false
+            blurEnabled: true
+            blur: 1
+            blurMax: 32
+            blurMultiplier: 1
+        }
 
-            anchors.centerIn: parent
-            spacing: Tokens.spacing.small
-
-            Logo {
-                Layout.alignment: Qt.AlignHCenter
-                Layout.preferredWidth: 48
-                Layout.preferredHeight: 48
-            }
-
-            SessionRow {
-                id: reboot
-
-                icon: Config.session.icons.reboot
-                label: "Reboot"
-                key: "R"
-                command: Config.session.commands.reboot
-
-                KeyNavigation.down: logout
-
-                Connections {
-                    function onLauncherChanged(): void {
-                        if (!root.screenState.launcher)
-                            logout.forceActiveFocus();
-                    }
-
-                    target: root.screenState
-                }
-            }
-
-            SessionRow {
-                id: logout
-
-                icon: Config.session.icons.logout
-                label: "Log Out"
-                key: "X"
-                command: Config.session.commands.logout
-
-                KeyNavigation.up: reboot
-                KeyNavigation.down: poweroff
-
-                Component.onCompleted: forceActiveFocus()
-            }
-
-            SessionRow {
-                id: poweroff
-
-                icon: Config.session.icons.shutdown
-                label: "Power Off"
-                key: "P"
-                isDanger: true
-                command: Config.session.commands.shutdown
-
-                KeyNavigation.up: logout
-                KeyNavigation.down: lock
-            }
-
-            SessionRow {
-                id: lock
-
-                icon: "lock"
-                label: "Lock"
-                key: "L"
-                command: ["loginctl", "lock-session"]
-
-                KeyNavigation.up: poweroff
-                KeyNavigation.down: suspend
-            }
-
-            SessionRow {
-                id: suspend
-
-                icon: "bedtime"
-                label: "Suspend"
-                key: "S"
-                command: ["systemctl", "suspend"]
-
-                KeyNavigation.up: lock
-                KeyNavigation.down: restartdms
-            }
-
-            SessionRow {
-                id: restartdms
-
-                icon: "refresh"
-                label: "Restart DMS"
-                key: "D"
-                command: ["sh", "-c", "qs -c caelestia kill; sleep 0.2; caelestia shell -d"]
-
-                KeyNavigation.up: suspend
-            }
-
-            StyledText {
-                anchors.horizontalCenter: parent.horizontalCenter
-                text: "Hold to confirm (500 ms)"
-                font: Tokens.font.body.small
-                color: Colours.palette.m3onSurfaceVariant
-            }
+        Image {
+            anchors.fill: parent
+            source: Wallpapers.current
+            fillMode: Image.PreserveAspectCrop
+            asynchronous: true
         }
     }
 
-    component SessionRow: ButtonBase {
-        id: row
+    // Dark tint over blur
+    Rectangle {
+        anchors.fill: parent
+        color: Qt.alpha("#000000", 0.45)
+    }
+
+    // Click-away to close (wleave behaviour)
+    MouseArea {
+        anchors.fill: parent
+        onClicked: root.screenState.session = false
+    }
+
+    Column {
+        anchors.centerIn: parent
+        spacing: Tokens.spacing.largeIncreased * 2
+
+        Logo {
+            anchors.horizontalCenter: parent.horizontalCenter
+            width: 72
+            height: 72
+        }
+
+        Row {
+            id: row
+
+            anchors.horizontalCenter: parent.horizontalCenter
+            spacing: Tokens.spacing.largeIncreased * 5
+
+        SessionIcon {
+            id: shutdown
+
+            icon: Config.session.icons.shutdown
+            label: "Shutdown"
+            key: "S"
+            command: Config.session.commands.shutdown
+
+            KeyNavigation.right: reboot
+        }
+
+        SessionIcon {
+            id: reboot
+
+            icon: Config.session.icons.reboot
+            label: "Reboot"
+            key: "R"
+            command: Config.session.commands.reboot
+
+            KeyNavigation.left: shutdown
+            KeyNavigation.right: logout
+        }
+
+        SessionIcon {
+            id: logout
+
+            icon: Config.session.icons.logout
+            label: "Logout"
+            key: "X"
+            command: Config.session.commands.logout
+
+            KeyNavigation.left: reboot
+            KeyNavigation.right: hibernate
+
+            Component.onCompleted: forceActiveFocus()
+
+            Connections {
+                function onLauncherChanged(): void {
+                    if (!root.screenState.launcher)
+                        logout.forceActiveFocus();
+                }
+
+                target: root.screenState
+            }
+        }
+
+        SessionIcon {
+            id: hibernate
+
+            icon: "bedtime"
+            label: "Hibernate"
+            key: "H"
+            command: Config.session.commands.hibernate
+
+            KeyNavigation.left: logout
+            KeyNavigation.right: lock
+        }
+
+        SessionIcon {
+            id: lock
+
+            icon: "lock"
+            label: "Lock"
+            key: "L"
+            command: ["loginctl", "lock-session"]
+
+            KeyNavigation.left: hibernate
+        }
+        }
+    }
+
+    component SessionIcon: ButtonBase {
+        id: btn
 
         required property string icon
         required property string label
         required property string key
         required property list<string> command
-        property bool isDanger: false
-        property int holdMs: 500
-        property real holdProgress: 0
 
         function exec(): void {
             if (!SessionManager.exec(command))
                 Quickshell.execDetached(command);
         }
 
-        function handleShortcut(event) : bool {
-            if (event.key === Qt.Key_R) {
+        function handleShortcut(event): bool {
+            if (event.key === Qt.Key_S) {
+                shutdown.exec();
+                event.accepted = true;
+                return true;
+            } else if (event.key === Qt.Key_R) {
                 reboot.exec();
                 event.accepted = true;
                 return true;
@@ -156,163 +169,102 @@ Item {
                 logout.exec();
                 event.accepted = true;
                 return true;
-            } else if (event.key === Qt.Key_P) {
-                poweroff.exec();
+            } else if (event.key === Qt.Key_H) {
+                hibernate.exec();
                 event.accepted = true;
                 return true;
             } else if (event.key === Qt.Key_L) {
                 lock.exec();
                 event.accepted = true;
                 return true;
-            } else if (event.key === Qt.Key_S) {
-                suspend.exec();
-                event.accepted = true;
-                return true;
-            } else if (event.key === Qt.Key_D) {
-                restartdms.exec();
+            } else if (event.key === Qt.Key_Space || event.key === Qt.Key_Escape) {
+                root.screenState.session = false;
                 event.accepted = true;
                 return true;
             }
             return false;
         }
 
-        implicitWidth: 380
-        implicitHeight: 56
+        implicitWidth: 170
+        implicitHeight: 200
         type: ButtonBase.Tonal
 
-        inactiveColour: isDanger ? Qt.alpha(Colours.palette.m3error, activeFocus ? 1 : 0.14) : activeFocus ? Colours.palette.m3secondaryContainer : Colours.tPalette.m3surfaceContainer
-        activeColour: isDanger ? Colours.palette.m3error : Colours.palette.m3secondaryContainer
-        inactiveOnColour: isDanger ? (activeFocus ? Colours.palette.m3onPrimary : Colours.palette.m3error) : activeFocus ? Colours.palette.m3onSecondaryContainer : Colours.palette.m3onSurface
-        activeOnColour: isDanger ? Colours.palette.m3onPrimary : Colours.palette.m3onSecondaryContainer
-        radius: activeFocus ? Tokens.rounding.extraLarge : Tokens.rounding.large
+        // Drive card highlight from keyboard focus / mouse hover
+        checked: activeFocus || hovered
+
+        // No idle card, system-color card only on hover/focus (wleave look)
+        inactiveColour: "transparent"
+        activeColour: Colours.palette.m3primary
+        inactiveOnColour: "#ffffff"
+        activeOnColour: Colours.palette.m3onPrimary
+        radius: Tokens.rounding.extraLarge
         font: Tokens.font.body.small
 
-        // Hold-to-confirm gates pointer clicks. Keyboard stays instant.
-        onClicked: {
-            // Single clicks do nothing; hold timer fires exec.
-        }
-        onPressedChanged: {
-            if (row.pressed) {
-                row.holdProgress = 0;
-                fillAnim.restart();
-                holdTimer.restart();
-            } else {
-                if (holdTimer.running) {
-                    holdTimer.stop();
-                    fillAnim.stop();
-                    row.holdProgress = 0;
-                }
+        // Pop-up scale on selection (like reference)
+        scale: (btn.activeFocus || btn.hovered) ? 1.12 : 1
+        transformOrigin: Item.Center
+        Behavior on scale {
+            NumberAnimation {
+                duration: 220
+                easing.type: Easing.OutBack
             }
         }
 
-        Timer {
-            id: holdTimer
+        // Single click executes (wleave behaviour)
+        onClicked: btn.exec()
 
-            interval: row.holdMs
-            onTriggered: row.exec()
-        }
-
-        NumberAnimation {
-            id: fillAnim
-
-            target: row
-            property: "holdProgress"
-            from: 0
-            to: 1
-            duration: row.holdMs
-        }
-
-        border.width: activeFocus ? 2 : 0
-        border.color: isDanger && activeFocus ? Colours.palette.m3error : Colours.palette.m3primary
-
-        RowLayout {
+        ColumnLayout {
             anchors.fill: parent
-            anchors.leftMargin: Tokens.padding.medium
-            anchors.rightMargin: Tokens.padding.medium
-            spacing: Tokens.spacing.medium
+            anchors.margins: Tokens.padding.small
+            spacing: Tokens.spacing.small
 
-            MaterialIcon {
-                Layout.alignment: Qt.AlignVCenter
-                text: row.icon
-                color: row.onColour
-                fill: 1
-                fontStyle: Tokens.font.icon.builders.medium.scale(1.2).build()
+            Item {
+                Layout.fillWidth: true
+                Layout.preferredHeight: 130
+
+                MaterialIcon {
+                    anchors.centerIn: parent
+                    text: btn.icon
+                    color: btn.onColour
+                    fill: (btn.activeFocus || btn.hovered) ? 1 : 0
+                    fontStyle: Tokens.font.icon.builders.extraLarge.scale(2.0).build()
+                }
             }
 
             StyledText {
-                Layout.alignment: Qt.AlignVCenter
-                Layout.fillWidth: true
-                text: row.label
+                Layout.alignment: Qt.AlignHCenter
+                text: btn.label
                 font: Tokens.font.body.builders.small.weight(Font.Medium).build()
-                color: row.onColour
-            }
-
-            StyledRect {
-                Layout.alignment: Qt.AlignVCenter
-                implicitWidth: keyLabel.implicitWidth + Tokens.padding.small * 2
-                implicitHeight: keyLabel.implicitHeight + Tokens.padding.extraSmall
-                radius: height / 2
-                color: Qt.alpha(row.onColour, row.activeFocus ? 0.22 : 0.1)
-
-                StyledText {
-                    id: keyLabel
-
-                    anchors.centerIn: parent
-                    text: row.key
-                    font: Tokens.font.body.small
-                    color: row.onColour
-                }
-            }
-        }
-
-        // Hold progress bar
-        StyledRect {
-            anchors.left: parent.left
-            anchors.right: parent.right
-            anchors.bottom: parent.bottom
-            anchors.leftMargin: Tokens.padding.medium
-            anchors.rightMargin: Tokens.padding.medium
-            anchors.bottomMargin: 6
-            implicitHeight: 3
-            radius: 2
-            color: "transparent"
-
-            StyledRect {
-                anchors.left: parent.left
-                anchors.verticalCenter: parent.verticalCenter
-                implicitWidth: (parent.width) * row.holdProgress
-                implicitHeight: 3
-                radius: 2
-                color: row.isDanger ? Colours.palette.m3error : Colours.palette.m3primary
-                visible: row.holdProgress > 0
+                color: btn.onColour
             }
         }
 
         Keys.onEnterPressed: exec()
         Keys.onReturnPressed: exec()
         Keys.onEscapePressed: root.screenState.session = false
+        Keys.onSpacePressed: root.screenState.session = false
         Keys.onPressed: event => {
             if (handleShortcut(event))
                 return;
+            // Arrow keys always work (not gated behind vim mode)
+            if (event.key === Qt.Key_Left && KeyNavigation.left) {
+                KeyNavigation.left.focus = true;
+                event.accepted = true;
+                return;
+            } else if (event.key === Qt.Key_Right && KeyNavigation.right) {
+                KeyNavigation.right.focus = true;
+                event.accepted = true;
+                return;
+            }
             if (!Config.session.vimKeybinds)
                 return;
 
-            if (event.modifiers & Qt.ControlModifier) {
-                if ((event.key === Qt.Key_J || event.key === Qt.Key_N) && KeyNavigation.down) {
-                    KeyNavigation.down.focus = true;
-                    event.accepted = true;
-                } else if ((event.key === Qt.Key_K || event.key === Qt.Key_P) && KeyNavigation.up) {
-                    KeyNavigation.up.focus = true;
-                    event.accepted = true;
-                }
-            } else if (event.key === Qt.Key_Tab && KeyNavigation.down) {
-                KeyNavigation.down.focus = true;
+            if (event.key === Qt.Key_H && KeyNavigation.left) {
+                KeyNavigation.left.focus = true;
                 event.accepted = true;
-            } else if (event.key === Qt.Key_Backtab || (event.key === Qt.Key_Tab && (event.modifiers & Qt.ShiftModifier))) {
-                if (KeyNavigation.up) {
-                    KeyNavigation.up.focus = true;
-                    event.accepted = true;
-                }
+            } else if (event.key === Qt.Key_L && KeyNavigation.right) {
+                KeyNavigation.right.focus = true;
+                event.accepted = true;
             }
         }
     }

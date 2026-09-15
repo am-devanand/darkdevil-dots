@@ -16,7 +16,7 @@ StyledRect {
     required property real usage
     required property real temperature
 
-    color: Colours.tPalette.m3surfaceContainer
+    color: Qt.alpha(Colours.tPalette.m3surfaceContainer, 0.45)
     border.width: 1
     border.color: Qt.rgba(Colours.palette.m3primary.r, Colours.palette.m3primary.g, Colours.palette.m3primary.b, 0.12)
     radius: Tokens.rounding.extraLarge
