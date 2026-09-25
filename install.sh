@@ -9,7 +9,7 @@ msg() { echo "==> $*"; }
 
 msg "Backing up existing configs to $BACKUP_DIR"
 mkdir -p "$BACKUP_DIR"
-for d in hypr caelestia quickshell/caelestia foot fish btop fastfetch; do
+for d in hypr caelestia quickshell/caelestia foot fish btop fastfetch opencode; do
   [ -e "$HOME/.config/$d" ] && cp -a "$HOME/.config/$d" "$BACKUP_DIR/" || true
 done
 [ -f "$HOME/.config/starship.toml" ] && cp -a "$HOME/.config/starship.toml" "$BACKUP_DIR/" || true
@@ -24,10 +24,23 @@ if ! command -v yay >/dev/null 2>&1; then
   msg "yay not found, install yay first: sudo pacman -S --needed git base-devel && git clone https://aur.archlinux.org/yay.git /tmp/yay && (cd /tmp/yay && makepkg -si)"
   exit 1
 fi
-# Core DarkDevil/Caelestia stack - always ensure these
-yay -S --needed quickshell-git caelestia-shell caelestia-cli papirus-icon-theme adw-gtk-theme qtengine-git ttf-jetbrains-mono-nerd || true
+# Core stack - always ensure these even if the package lists were trimmed.
+# Stable quickshell comes from packages-pacman.txt; never quickshell-git.
+yay -S --needed caelestia-shell-git caelestia-cli || true
 if [ -f "$DOTDIR/packages-aur.txt" ]; then
-  yay -S --needed - < "$DOTDIR/packages-aur.txt" || msg "aur step had warnings, continuing"
+  grep -v '^[[:space:]]*#' "$DOTDIR/packages-aur.txt" | sed 's/[[:space:]].*//' | grep -v '^[[:space:]]*$' | yay -S --needed - || msg "aur step had warnings, continuing"
+fi
+
+msg "Provisioning base shell (package copy, only if missing)"
+QS_BASE_SRC="/etc/xdg/quickshell/caelestia"
+QS_BASE_DST="$HOME/.config/quickshell/caelestia"
+if [ ! -d "$QS_BASE_DST/modules" ]; then
+  if [ -d "$QS_BASE_SRC" ]; then
+    mkdir -p "$HOME/.config/quickshell"
+    cp -a "$QS_BASE_SRC" "$QS_BASE_DST"
+  else
+    msg "WARNING: $QS_BASE_SRC missing - is caelestia-shell-git installed?"
+  fi
 fi
 
 msg "Copying configs (copy, not symlink)"
@@ -57,27 +70,33 @@ for app in foot fish btop fastfetch; do
   [ -d "$DOTDIR/$app" ] && { mkdir -p ~/.config/$app; cp -a "$DOTDIR/$app/." ~/.config/$app/; }
 done
 [ -f "$DOTDIR/starship.toml" ] && cp -a "$DOTDIR/starship.toml" ~/.config/starship.toml
+# opencode CLI config (themes, keybinds) - no-clobber so live plugins survive
+[ -d "$DOTDIR/opencode" ] && { mkdir -p ~/.config/opencode; cp -an "$DOTDIR/opencode/." ~/.config/opencode/; }
 
+# System network tuning (Wi-Fi powersave off, no scan MAC randomization)
+if [ -d "$DOTDIR/system/etc/NetworkManager/conf.d" ]; then
+  sudo mkdir -p /etc/NetworkManager/conf.d
+  sudo cp -a "$DOTDIR/system/etc/NetworkManager/conf.d/." /etc/NetworkManager/conf.d/
+  sudo chmod 644 /etc/NetworkManager/conf.d/* 2>/dev/null || true
+fi
+
+# Wallpapers travel out-of-band (1GB+, gitignored). Ship one default so a
+# fresh machine still has a wallpaper on first boot.
 mkdir -p ~/Pictures/wallpapers
 [ -d "$DOTDIR/wallpapers" ] && cp -an "$DOTDIR/wallpapers/." ~/Pictures/wallpapers/ || true
+if [ -z "$(ls -A ~/Pictures/wallpapers 2>/dev/null)" ] && [ -d "$DOTDIR/wallpapers-default" ]; then
+  cp -an "$DOTDIR/wallpapers-default/." ~/Pictures/wallpapers/
+fi
 
-# QML overrides (notification cards, dashboard, etc.)
-QS_DIR="$HOME/.config/quickshell/caelestia/modules"
-QS_BACKUP="$HOME/.config/quickshell/pre-darkdevil-$(date +%Y%m%d)"
-if [ -d "$DOTDIR/quickshell-overrides" ]; then
+# QML overrides - single source of truth is quickshell-overrides/.
+if [ -f "$DOTDIR/quickshell-overrides/apply-overrides.sh" ]; then
   msg "Applying QML overrides"
-  mkdir -p "$QS_BACKUP"
-  for module in notifications bar drawers dashboard; do
-    [ -d "$QS_DIR/$module" ] && cp -a "$QS_DIR/$module" "$QS_BACKUP/" 2>/dev/null || true
-  done
-  for module in notifications bar drawers dashboard; do
-    if [ -d "$DOTDIR/quickshell-overrides/$module" ]; then
-      mkdir -p "$QS_DIR/$module"
-      cp -a "$DOTDIR/quickshell-overrides/$module/." "$QS_DIR/$module/"
-    fi
-  done
+  bash "$DOTDIR/quickshell-overrides/apply-overrides.sh"
+else
+  msg "WARNING: apply-overrides.sh missing, skipping QML overrides"
 fi
 
 msg "Done. Backup at $BACKUP_DIR"
+msg "Set wallpaper: caelestia wallpaper -f ~/Pictures/wallpapers/<file> (or -r for random)"
 msg "Restart shell: caelestia shell -k && sleep 1 && caelestia shell -d"
 msg "If Hyprland fails: restore from $BACKUP_DIR"

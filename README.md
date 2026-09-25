@@ -58,6 +58,16 @@ QML patches are re-applied automatically. Live QML is backed up to `~/.config/qu
 - [caelestia-dots/caelestia](https://github.com/caelestia-dots/caelestia) — base dotfiles (GPL-3.0)
 - [JaKooLit](https://github.com/JaKooLit) — install model reference
 
+## Fresh machine notes
+
+- Wallpapers (1GB+) sync out-of-band (rsync/Syncthing). If `~/Pictures/wallpapers`
+  is empty, install.sh drops in one default (`wallpapers-default/`) — set it with
+  `caelestia wallpaper -f <file>` (scheme regenerates from the wallpaper).
+- `hypr/scheme/current.lua` is a snapshot; caelestia rewrites it on wallpaper change.
+- Lock screen variants are manual: `quickshell-overrides/lock-setups/switch-lock.sh 1|2`.
+- Keybinds live in `hypr/hyprland/keybinds.conf` (+ `$kb*` vars in `hypr/variables.conf`).
+- install.sh needs sudo (pacman + `/etc/NetworkManager/conf.d` Wi-Fi tuning).
+
 ## License
 
 Your own configs: yours. Anything derived from Caelestia: GPL-3.0, notices preserved.
