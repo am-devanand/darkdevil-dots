@@ -24,4 +24,17 @@ for module in notifications bar drawers dashboard background session lock; do
   fi
 done
 
+# Root-level overrides (services, utils) live at the caelestia config root.
+QS_ROOT="$HOME/.config/quickshell/caelestia"
+cp -a "$QS_ROOT/services" "$BACKUP/" 2>/dev/null || true
+cp -a "$QS_ROOT/utils" "$BACKUP/" 2>/dev/null || true
+
+for rootdir in services utils; do
+  if [ -d "$OVERRIDES/$rootdir" ]; then
+    msg "Applying $rootdir overrides"
+    mkdir -p "$QS_ROOT/$rootdir"
+    cp -a "$OVERRIDES/$rootdir/." "$QS_ROOT/$rootdir/"
+  fi
+done
+
 msg "Done. Restart shell: caelestia shell -k && sleep 1 && caelestia shell -d"
