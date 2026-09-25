@@ -15,8 +15,11 @@ cp -a "$QS_DIR/drawers" "$BACKUP/" 2>/dev/null || true
 cp -a "$QS_DIR/background" "$BACKUP/" 2>/dev/null || true
 cp -a "$QS_DIR/session" "$BACKUP/" 2>/dev/null || true
 cp -a "$QS_DIR/lock" "$BACKUP/" 2>/dev/null || true
+cp -a "$QS_DIR/dashboard" "$BACKUP/" 2>/dev/null || true
+cp -a "$QS_DIR/sidebar" "$BACKUP/" 2>/dev/null || true
+cp -a "$QS_DIR/nexus" "$BACKUP/" 2>/dev/null || true
 
-for module in notifications bar drawers dashboard background session lock; do
+for module in notifications bar drawers dashboard background session lock sidebar nexus; do
   if [ -d "$OVERRIDES/$module" ]; then
     msg "Applying $module overrides"
     mkdir -p "$QS_DIR/$module"
@@ -24,12 +27,14 @@ for module in notifications bar drawers dashboard background session lock; do
   fi
 done
 
-# Root-level overrides (services, utils) live at the caelestia config root.
+# Root-level overrides (services, utils, assets, components) live at the
+# caelestia config root, not under modules/.
 QS_ROOT="$HOME/.config/quickshell/caelestia"
-cp -a "$QS_ROOT/services" "$BACKUP/" 2>/dev/null || true
-cp -a "$QS_ROOT/utils" "$BACKUP/" 2>/dev/null || true
+for rootdir in services utils assets components; do
+  cp -a "$QS_ROOT/$rootdir" "$BACKUP/" 2>/dev/null || true
+done
 
-for rootdir in services utils; do
+for rootdir in services utils assets components; do
   if [ -d "$OVERRIDES/$rootdir" ]; then
     msg "Applying $rootdir overrides"
     mkdir -p "$QS_ROOT/$rootdir"
