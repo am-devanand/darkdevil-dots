@@ -219,6 +219,9 @@ hl.bind("SUPER + RETURN", hl.dsp.exec_cmd("foot"))
     hl.bind("SUPER + SHIFT + ALT + R", hl.dsp.exec_cmd("caelestia record -r"))
     hl.bind("SUPER + SHIFT + C", hl.dsp.exec_cmd("hyprpicker -a"))
 
+    -- Handy voice-to-text toggle (press to start/stop transcription)
+    hl.bind("SUPER + H", hl.dsp.exec_cmd("handy --toggle-transcription"))
+
     -- Volume
     hl.bind("XF86AudioMicMute", hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"), { locked = true })
     hl.bind("XF86AudioMute", hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"), { locked = true })

@@ -28,6 +28,9 @@ hl.on("hyprland.start", function()
     -- Forward bluetooth media commands to MPRIS
     hl.exec_cmd("mpris-proxy")
 
+    -- Handy voice-to-text (hidden, SUPER+H toggles transcription)
+    hl.exec_cmd("handy --start-hidden")
+
     -- Resize and move windows based on matches (e.g. pip)
     hl.exec_cmd("caelestia resizer -d")
 
