@@ -16,12 +16,16 @@ Item {
     property bool completed
 
     onSourceChanged: {
-        if (!source)
+        if (!source) {
             current = null;
-        else
-            current = imgComp.createObject(this, {
-                path: source
-            });
+            return;
+        }
+        const isTransition = current !== null;
+        const obj = imgComp.createObject(this, {
+            path: source
+        });
+        obj.animateIn = isTransition;
+        current = obj;
     }
 
     Component.onCompleted: {
@@ -106,60 +110,47 @@ Item {
         CachingImage {
             id: img
 
+            property bool animateIn: false
+
             anchors.fill: parent
 
-            opacity: 0
+            // Always on: the effect object must exist before any handler touches
+            // waveFx (a disabled layer lazily destroys it). At progress 1 the
+            // shader is a pure passthrough, so static wallpapers cost one quad.
+            layer.enabled: true
+            layer.effect: ShaderEffect {
+                id: waveFx
 
-            transform: Translate {
-                id: imgTranslate
+                property real progress: 1
 
-                x: 50
-                y: -50
+                fragmentShader: Qt.resolvedUrl("./wavetransition.frag.qsb")
             }
 
             onStatusChanged: {
                 if (status === Image.Ready) {
-                    anim.start();
-                    translateInX.start();
-                    translateInY.start();
+                    if (img.animateIn) {
+                        waveFx.progress = 0;
+                        waveAnim.start();
+                    } else {
+                        waveFx.progress = 1;
+                    }
                 }
             }
 
-            Anim on opacity {
-                id: anim
+            NumberAnimation {
+                id: waveAnim
 
-                type: Anim.SlowEffects
-                running: false
+                target: waveFx
+                property: "progress"
                 from: 0
                 to: 1
-                duration: 2500
-            }
-
-            NumberAnimation {
-                id: translateInX
-
-                target: imgTranslate
-                property: "x"
-                from: 50
-                to: 0
-                duration: 2500
-                easing.type: Easing.InOutCubic
-            }
-
-            NumberAnimation {
-                id: translateInY
-
-                target: imgTranslate
-                property: "y"
-                from: -50
-                to: 0
-                duration: 2500
+                duration: 1400
                 easing.type: Easing.InOutCubic
             }
 
             Timer {
                 running: root.current !== img && root.current?.status === Image.Ready
-                interval: anim.duration
+                interval: waveAnim.duration
                 onTriggered: img.destroy()
             }
         }
