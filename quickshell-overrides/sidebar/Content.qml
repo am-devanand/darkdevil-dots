@@ -40,10 +40,5 @@ Item {
         SlidersCard {
             Layout.fillWidth: true
         }
-
-        QuickGrid {
-            Layout.fillWidth: true
-            screenState: root.screenState
-        }
     }
 }
