@@ -4,11 +4,13 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Bluetooth
+import Quickshell.Services.UPower
 import Caelestia.Components
 import Caelestia.Config
 import qs.components
 import qs.components.controls
 import qs.services
+import qs.utils
 import qs.modules.nexus
 import qs.modules.bar.popouts as BarPopouts
 
@@ -42,18 +44,56 @@ StyledRect {
     radius: Tokens.rounding.large
     color: Qt.alpha(Colours.tPalette.m3surfaceContainer, 0.65)
 
-    GridLayout {
+    ColumnLayout {
         id: layout
 
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.top: parent.top
         anchors.margins: Tokens.padding.medium
-        columns: 4
-        rowSpacing: Tokens.spacing.small
-        columnSpacing: Tokens.spacing.small
+        spacing: Tokens.spacing.small
 
-        Repeater {
+        RowLayout {
+            visible: UPower.displayDevice !== null
+            Layout.fillWidth: true
+            spacing: Tokens.spacing.small
+
+            MaterialIcon {
+                text: Icons.getBatteryIcon(UPower.displayDevice?.percentage ?? 0, !UPower.onBattery)
+                color: Colours.palette.m3onSurfaceVariant
+                fontStyle: Tokens.font.icon.small
+            }
+
+            StyledText {
+                text: `${Math.round((UPower.displayDevice?.percentage ?? 0) * 100)}%`
+                color: Colours.palette.m3onSurface
+                font: Tokens.font.body.builders.medium.weight(Font.Medium).build()
+            }
+
+            StyledRect {
+                Layout.fillWidth: true
+                Layout.preferredHeight: 6
+                radius: Tokens.rounding.full
+                color: Qt.alpha(Colours.palette.m3onSurface, 0.15)
+
+                StyledRect {
+                    anchors.left: parent.left
+                    anchors.top: parent.top
+                    anchors.bottom: parent.bottom
+                    width: parent.width * (UPower.displayDevice?.percentage ?? 0)
+                    radius: parent.radius
+                    color: Colours.palette.m3primary
+                }
+            }
+        }
+
+        GridLayout {
+            Layout.fillWidth: true
+            columns: 4
+            rowSpacing: Tokens.spacing.small
+            columnSpacing: Tokens.spacing.small
+
+            Repeater {
             model: root.quickToggles
 
             delegate: DelegateChooser {
@@ -152,7 +192,8 @@ StyledRect {
                 root.screenState.session = true;
             }
         }
-    }
+    } // end GridLayout
+    } // end ColumnLayout
 
     component Toggle: IconButton {
         Layout.fillWidth: true
