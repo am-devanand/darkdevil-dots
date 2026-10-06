@@ -40,7 +40,7 @@ StyledRect {
     implicitHeight: layout.implicitHeight + Tokens.padding.medium * 2
 
     radius: Tokens.rounding.large
-    color: Colours.tPalette.m3surfaceContainer
+    color: Qt.alpha(Colours.tPalette.m3surfaceContainer, 0.65)
 
     GridLayout {
         id: layout

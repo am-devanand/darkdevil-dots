@@ -204,6 +204,7 @@ StyledWindow {
             implicitHeight: panel.height * (1 / rawDeformMatrix.m22) + 2
             exclude: panels.sidebar.offsetScale > 0.08 ? [] : [utilsBg]
             bottomLeftRadius: Math.max(0, Math.min(1, panels.sidebar.offsetScale / 0.3)) * radius
+            visible: false // DarkDevil: glassy sidebar, cards float over blurred wallpaper
         }
 
         PanelBg {
@@ -228,6 +229,7 @@ StyledWindow {
             deformAmount: panels.sidebar.visible ? 0.1 : 0.15
             exclude: panels.sidebar.offsetScale > 0.08 ? [] : [sidebarBg]
             topLeftRadius: Math.max(0, Math.min(1, panels.sidebar.offsetScale / 0.3)) * radius
+            visible: false // DarkDevil: glassy utilities, cards float over blurred wallpaper
         }
 
         PanelBg {

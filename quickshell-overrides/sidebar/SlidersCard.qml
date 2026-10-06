@@ -14,7 +14,7 @@ StyledRect {
     readonly property var brightnessMonitor: Brightness.getMonitor("active")
 
     radius: Tokens.rounding.large
-    color: Colours.tPalette.m3surfaceContainer
+    color: Qt.alpha(Colours.tPalette.m3surfaceContainer, 0.65)
 
     implicitHeight: layout.implicitHeight + Tokens.padding.medium * 2
 

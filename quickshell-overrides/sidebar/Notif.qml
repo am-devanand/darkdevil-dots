@@ -20,7 +20,7 @@ StyledRect {
     implicitHeight: nonAnimHeight
 
     radius: Tokens.rounding.large
-    color: root.modelData?.urgency === "critical" ? Colours.palette.m3secondaryContainer : Colours.layer(Colours.palette.m3surfaceContainerHigh, 2)
+    color: root.modelData?.urgency === "critical" ? Colours.palette.m3secondaryContainer : Qt.alpha(Colours.layer(Colours.palette.m3surfaceContainerHigh, 2), 0.65)
 
     state: expanded ? "expanded" : ""
 
